@@ -9,25 +9,13 @@
   register: pkg_result
   until: pkg_result is success
 
-- name: RedHat7 | Enable ngompa/snapcore-el7 copr
-  command: "copr enable -y ngompa/snapcore-el7"
+- name: RedHat7 | Enable ganto/lxc3 copr
+  command: "copr enable -y ganto/lxc3"
   args:
-    creates: /etc/yum.repos.d/_copr_@gift-stable.repo
+    creates: /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:ganto:lxc3.repo
     warn: False
 
-- name: RedHat7 | Ensure snapd is present
-  yum:
-    name: snapd
-    state: present
-    update_cache: yes
-  register: pkg_result
-  until: pkg_result is success
 
-- name: RedHat7 | Ensure snapd.socket is enabled and started
-  service:
-    name: snapd.socket
-    enabled: yes
-    state: started
 
 - name: RedHat7 | Configure ZFS repository
   command: "{{ item }}"
@@ -68,7 +56,16 @@
 # https://github.com/ansible/ansible/issues/39155
 # https://github.com/wekan/wekan-snap/wiki/Install-snap-with-Ansible
 
-- name: RedHat7 | install lxd with snap
-  command: snap install lxd
-  args:
-    creates: /xyz
+- name: RedHat7 | Ensure lxd is present
+  yum:
+    name: lxd
+    state: present
+    update_cache: yes
+  register: pkg_result
+  until: pkg_result is success
+
+- name: RedHat7 | Ensure snapd.socket is enabled and started
+  service:
+    name: lxd
+    enabled: yes
+    state: started
